@@ -26,7 +26,9 @@ Both are documented below, along with how environment variables are managed.
    - **Runtime:** Node
    - **Build Command:** `npm install && npm run build && npx prisma migrate deploy && npm run seed`
      (the free instance type has **no shell/SSH**, so migrations and seeding run in the build;
-     the seed is idempotent and does nothing once data exists)
+     the seed is idempotent and does nothing once data exists.
+     `server/.npmrc` sets `include=dev` because hosts set `NODE_ENV=production`, which would
+     otherwise skip devDependencies — TypeScript and the `@types/*` packages the build needs.)
    - **Start Command:** `npm run start`
 3. Environment variables (Render dashboard → Environment):
 
