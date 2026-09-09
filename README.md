@@ -173,9 +173,10 @@ and how environment variables are managed on each platform.
 Short version:
 
 1. **Database** — create a free Neon/Supabase Postgres, copy the connection string.
-2. **Backend on Render** — root directory `server`, build `npm install && npm run build`,
+2. **Backend on Render** — root directory `server`, build
+   `npm install && npm run build && npx prisma migrate deploy && npm run seed`,
    start `npm run start`, env vars `DATABASE_URL`, `JWT_SECRET`, `CORS_ORIGIN`, then run
-   `npx prisma migrate deploy && npm run seed` once from the Render shell.
+   Free instances have no shell, so migrate + seed run inside the build command (seed is idempotent).
 3. **Frontend on Vercel** — root directory `web`, framework Vite, env var
    `VITE_API_URL=https://<your-api>.onrender.com`.
 4. Set `CORS_ORIGIN` on the backend to the deployed Vercel URL and redeploy.

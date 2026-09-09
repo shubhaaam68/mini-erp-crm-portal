@@ -6,6 +6,13 @@ import { prisma } from "./lib/prisma";
  * so reviewers can log in and see a populated system immediately.
  */
 async function main() {
+  // Idempotent: safe to run on every deploy. If demo data already exists, do nothing
+  // (avoids duplicating challans/follow-ups when the build command re-runs the seed).
+  const existing = await prisma.challan.count();
+  if (existing > 0) {
+    console.log("Seed skipped: database already seeded.");
+    return;
+  }
   const password = await bcrypt.hash("Password@123", 10);
   const users = [
     { name: "Aditi Admin", email: "admin@erpdemo.com", role: "ADMIN" as const },

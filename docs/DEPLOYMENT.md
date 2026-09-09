@@ -24,7 +24,9 @@ Both are documented below, along with how environment variables are managed.
 2. Settings:
    - **Root Directory:** `server`
    - **Runtime:** Node
-   - **Build Command:** `npm install && npm run build`
+   - **Build Command:** `npm install && npm run build && npx prisma migrate deploy && npm run seed`
+     (the free instance type has **no shell/SSH**, so migrations and seeding run in the build;
+     the seed is idempotent and does nothing once data exists)
    - **Start Command:** `npm run start`
 3. Environment variables (Render dashboard → Environment):
 
@@ -37,12 +39,9 @@ Both are documented below, along with how environment variables are managed.
    | `NODE_ENV` | `production` |
 
    `PORT` is injected by Render automatically and the app reads it.
-4. Deploy, then open the Render **Shell** and run once:
-
-   ```bash
-   npx prisma migrate deploy
-   npm run seed
-   ```
+4. Deploy and watch the log for `Seed complete.` — the tables and the four role logins are
+   created by the build command above. Free instances have no shell/SSH; on a paid instance you
+   could instead run `npx prisma migrate deploy && npm run seed` once from the **Shell** tab.
 
 5. Verify: `https://<your-service>.onrender.com/health` returns `{"status":"ok"}`.
 
