@@ -1,0 +1,204 @@
+{
+  "info": {
+    "name": "Mini ERP + CRM Operations Portal",
+    "description": "Full Stack Developer case study API. Run 'Auth / Login' first: the token is saved into the collection variable {{token}} and used by every other request.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:4000" },
+    { "key": "token", "value": "" },
+    { "key": "customerId", "value": "" },
+    { "key": "productId", "value": "" },
+    { "key": "challanId", "value": "" }
+  ],
+  "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+  "item": [
+    {
+      "name": "Health",
+      "request": { "method": "GET", "auth": { "type": "noauth" }, "url": { "raw": "{{baseUrl}}/health", "host": ["{{baseUrl}}"], "path": ["health"] } }
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login (admin)",
+          "event": [{ "listen": "test", "script": { "exec": ["const b = pm.response.json();", "pm.collectionVariables.set('token', b.token);", "pm.test('token returned', () => pm.expect(b.token).to.be.a('string'));"] } }],
+          "request": {
+            "method": "POST",
+            "auth": { "type": "noauth" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"admin@erpdemo.com\",\n  \"password\": \"Password@123\"\n}" },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Login (sales)",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.collectionVariables.set('token', pm.response.json().token);"] } }],
+          "request": {
+            "method": "POST",
+            "auth": { "type": "noauth" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"sales@erpdemo.com\",\n  \"password\": \"Password@123\"\n}" },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Login (warehouse)",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.collectionVariables.set('token', pm.response.json().token);"] } }],
+          "request": {
+            "method": "POST",
+            "auth": { "type": "noauth" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"warehouse@erpdemo.com\",\n  \"password\": \"Password@123\"\n}" },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Login (accounts)",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.collectionVariables.set('token', pm.response.json().token);"] } }],
+          "request": {
+            "method": "POST",
+            "auth": { "type": "noauth" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"accounts@erpdemo.com\",\n  \"password\": \"Password@123\"\n}" },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Login (invalid — expect 400)",
+          "request": {
+            "method": "POST",
+            "auth": { "type": "noauth" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"not-an-email\"\n}" },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        },
+        { "name": "Me", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/auth/me", "host": ["{{baseUrl}}"], "path": ["auth", "me"] } } }
+      ]
+    },
+    {
+      "name": "Customers",
+      "item": [
+        {
+          "name": "List (search + pagination)",
+          "event": [{ "listen": "test", "script": { "exec": ["const d = pm.response.json().data;", "if (d.length) pm.collectionVariables.set('customerId', d[0].id);"] } }],
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/customers?search=&page=1&pageSize=10", "host": ["{{baseUrl}}"], "path": ["customers"], "query": [{ "key": "search", "value": "" }, { "key": "page", "value": "1" }, { "key": "pageSize", "value": "10" }] } }
+        },
+        { "name": "Get by id", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/customers/{{customerId}}", "host": ["{{baseUrl}}"], "path": ["customers", "{{customerId}}"] } } },
+        {
+          "name": "Create",
+          "event": [{ "listen": "test", "script": { "exec": ["if (pm.response.code === 201) pm.collectionVariables.set('customerId', pm.response.json().data.id);"] } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Nikhil Joshi\",\n  \"mobile\": \"9876500011\",\n  \"email\": \"nikhil@joshikirana.in\",\n  \"businessName\": \"Joshi Kirana\",\n  \"gstNumber\": \"27AAECJ1234K1Z9\",\n  \"type\": \"RETAIL\",\n  \"address\": \"Shop 5, FC Road, Pune 411005\",\n  \"status\": \"LEAD\",\n  \"notes\": \"Walk-in enquiry\"\n}" },
+            "url": { "raw": "{{baseUrl}}/customers", "host": ["{{baseUrl}}"], "path": ["customers"] }
+          }
+        },
+        {
+          "name": "Update",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Nikhil Joshi\",\n  \"mobile\": \"9876500011\",\n  \"email\": \"nikhil@joshikirana.in\",\n  \"businessName\": \"Joshi Kirana & Sons\",\n  \"gstNumber\": \"27AAECJ1234K1Z9\",\n  \"type\": \"WHOLESALE\",\n  \"address\": \"Shop 5, FC Road, Pune 411005\",\n  \"status\": \"ACTIVE\",\n  \"notes\": \"Converted from lead\"\n}" },
+            "url": { "raw": "{{baseUrl}}/customers/{{customerId}}", "host": ["{{baseUrl}}"], "path": ["customers", "{{customerId}}"] }
+          }
+        },
+        {
+          "name": "Add follow-up",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"note\": \"Shared the wholesale rate list\"\n}" },
+            "url": { "raw": "{{baseUrl}}/customers/{{customerId}}/follow-ups", "host": ["{{baseUrl}}"], "path": ["customers", "{{customerId}}", "follow-ups"] }
+          }
+        },
+        {
+          "name": "Create with bad data (expect 400)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"A\",\n  \"mobile\": \"abc\",\n  \"businessName\": \"\",\n  \"type\": \"RETAIL\",\n  \"address\": \"\",\n  \"status\": \"LEAD\"\n}" },
+            "url": { "raw": "{{baseUrl}}/customers", "host": ["{{baseUrl}}"], "path": ["customers"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Products & Inventory",
+      "item": [
+        {
+          "name": "List (search, low stock)",
+          "event": [{ "listen": "test", "script": { "exec": ["const d = pm.response.json().data;", "if (d.length) pm.collectionVariables.set('productId', d[0].id);"] } }],
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/products?search=&lowStock=false&page=1&pageSize=10", "host": ["{{baseUrl}}"], "path": ["products"], "query": [{ "key": "search", "value": "" }, { "key": "lowStock", "value": "false" }, { "key": "page", "value": "1" }, { "key": "pageSize", "value": "10" }] } }
+        },
+        { "name": "Categories", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/products/categories", "host": ["{{baseUrl}}"], "path": ["products", "categories"] } } },
+        { "name": "Get by id (with movements)", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/products/{{productId}}", "host": ["{{baseUrl}}"], "path": ["products", "{{productId}}"] } } },
+        {
+          "name": "Create (warehouse/admin)",
+          "event": [{ "listen": "test", "script": { "exec": ["if (pm.response.code === 201) pm.collectionVariables.set('productId', pm.response.json().data.id);"] } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Good Day Cashew 200g\",\n  \"sku\": \"SKU-BIS-010\",\n  \"category\": \"Biscuits\",\n  \"unitPrice\": 45.5,\n  \"currentStock\": 150,\n  \"minStockAlert\": 40,\n  \"location\": \"Warehouse B\"\n}" },
+            "url": { "raw": "{{baseUrl}}/products", "host": ["{{baseUrl}}"], "path": ["products"] }
+          }
+        },
+        {
+          "name": "Stock IN",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"type\": \"IN\",\n  \"quantity\": 50,\n  \"reason\": \"Purchase invoice #A-1187\"\n}" },
+            "url": { "raw": "{{baseUrl}}/products/{{productId}}/stock", "host": ["{{baseUrl}}"], "path": ["products", "{{productId}}", "stock"] }
+          }
+        },
+        {
+          "name": "Stock OUT beyond stock (expect 400)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"type\": \"OUT\",\n  \"quantity\": 999999,\n  \"reason\": \"Negative stock guard test\"\n}" },
+            "url": { "raw": "{{baseUrl}}/products/{{productId}}/stock", "host": ["{{baseUrl}}"], "path": ["products", "{{productId}}", "stock"] }
+          }
+        },
+        { "name": "Stock movement log", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/stock-movements?page=1&pageSize=15", "host": ["{{baseUrl}}"], "path": ["stock-movements"], "query": [{ "key": "page", "value": "1" }, { "key": "pageSize", "value": "15" }] } } }
+      ]
+    },
+    {
+      "name": "Sales Challans",
+      "item": [
+        {
+          "name": "List",
+          "event": [{ "listen": "test", "script": { "exec": ["const d = pm.response.json().data;", "if (d.length) pm.collectionVariables.set('challanId', d[0].id);"] } }],
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/challans?status=&page=1&pageSize=10", "host": ["{{baseUrl}}"], "path": ["challans"], "query": [{ "key": "status", "value": "" }, { "key": "page", "value": "1" }, { "key": "pageSize", "value": "10" }] } }
+        },
+        {
+          "name": "Create draft",
+          "event": [{ "listen": "test", "script": { "exec": ["if (pm.response.code === 201) pm.collectionVariables.set('challanId', pm.response.json().data.id);"] } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"customerId\": \"{{customerId}}\",\n  \"status\": \"DRAFT\",\n  \"remarks\": \"Created from Postman\",\n  \"items\": [\n    { \"productId\": \"{{productId}}\", \"quantity\": 5 }\n  ]\n}" },
+            "url": { "raw": "{{baseUrl}}/challans", "host": ["{{baseUrl}}"], "path": ["challans"] }
+          }
+        },
+        { "name": "Get by id", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/challans/{{challanId}}", "host": ["{{baseUrl}}"], "path": ["challans", "{{challanId}}"] } } },
+        { "name": "Confirm (reduces stock)", "request": { "method": "POST", "url": { "raw": "{{baseUrl}}/challans/{{challanId}}/confirm", "host": ["{{baseUrl}}"], "path": ["challans", "{{challanId}}", "confirm"] } } },
+        { "name": "Confirm again (expect 409)", "request": { "method": "POST", "url": { "raw": "{{baseUrl}}/challans/{{challanId}}/confirm", "host": ["{{baseUrl}}"], "path": ["challans", "{{challanId}}", "confirm"] } } },
+        { "name": "Cancel (returns stock)", "request": { "method": "POST", "url": { "raw": "{{baseUrl}}/challans/{{challanId}}/cancel", "host": ["{{baseUrl}}"], "path": ["challans", "{{challanId}}", "cancel"] } } },
+        {
+          "name": "Create confirmed beyond stock (expect 400)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"customerId\": \"{{customerId}}\",\n  \"status\": \"CONFIRMED\",\n  \"items\": [\n    { \"productId\": \"{{productId}}\", \"quantity\": 999999 }\n  ]\n}" },
+            "url": { "raw": "{{baseUrl}}/challans", "host": ["{{baseUrl}}"], "path": ["challans"] }
+          }
+        }
+      ]
+    },
+    { "name": "Dashboard summary", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/dashboard/summary", "host": ["{{baseUrl}}"], "path": ["dashboard", "summary"] } } }
+  ]
+}
